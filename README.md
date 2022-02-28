@@ -5,3 +5,6 @@ This repo is made as an example of a different program I made. It loops through 
 - Dps is: Damage * RateOfFire * (1 + BaseCrit * CritStrength * CritPercentage) * MultiShot
 - Dph is: Damage * (1 + BaseCit * CritStrength) * MultiShot
 - Hps is: Damage * RateOfFire * (1 + BaseCrit * CritStrength * CritPercentage) * HealingPower
+
+## You will need a SQL Database to connect to
+The connection string is in the "SQL_Reader.cs" file.
