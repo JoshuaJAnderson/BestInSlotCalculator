@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Objects;
-using System.Text;
 
 namespace BestInSlotCalculator
 {
@@ -11,7 +10,7 @@ namespace BestInSlotCalculator
     List<Modifier> _FinalModSet = new List<Modifier>();
     HashSet<string> cache = new HashSet<string>();
 
-    int _MaxTech = 22, _AugAmounts;
+    int _MaxTech = 22, _ModAmounts;
     double _WepRecoil, _BaseCritExtraDamage = 0.5, _BaseCritPercentage = 0.1;
 
     classStats _classStats;
@@ -31,7 +30,7 @@ namespace BestInSlotCalculator
     }
 
     //Creates a filtered set of augmenters using the _FinalModSet list
-    private void setupTempAugSet()
+    private void setupTempModSet()
     {
       Console.WriteLine("----------------------------------");
       for (int i = 0; i < _ModSet.Count; i++)
@@ -41,15 +40,15 @@ namespace BestInSlotCalculator
           _FinalModSet.Add(_ModSet[i]);
         }
       }
-      Console.WriteLine("Amount of augmenters: " + _FinalModSet.Count);
+      Console.WriteLine("Amount of modifiers: " + _FinalModSet.Count);
     }
 
     //Returns a string of the augmenter's names using an array of their index's
-    private string FullNameOfAugSet(int[] augIndexes)
+    private string FullNameOfModSet(int[] ModIndexes)
     {
       string Names = "|";
 
-      foreach (int i in augIndexes)
+      foreach (int i in ModIndexes)
       {
         Names += _FinalModSet[i].Name + "|";
       }
@@ -64,14 +63,14 @@ namespace BestInSlotCalculator
 
       arrayIndex = BestSetup.Value;
 
-      int[] FinalAugSet = new int[_AugAmounts];
+      int[] FinalModSet = new int[_ModAmounts];
       int tempIndex = 0, ArrayIndex = 0;
 
       for (int i = 0; i < arrayIndex.Length; i++)
       {
         if (arrayIndex[i] == '-')
         {
-          FinalAugSet[ArrayIndex] = tempIndex;
+          FinalModSet[ArrayIndex] = tempIndex;
           tempIndex = 0;
           ArrayIndex++;
           continue;
@@ -80,15 +79,15 @@ namespace BestInSlotCalculator
         tempIndex += arrayIndex[i] - '0';
       }
 
-      return FinalAugSet;
+      return FinalModSet;
     }
 
     //public string ProcessSetupWithClassAndAmount(string, string, string, int, int, double)
     //Process the information and gives back in string form the best possible aug setup
-    public string ProcessSetupWithClassAndAmount(string setup, string charClass, int tech, int augSlots, double recoil)
+    public string ProcessSetupWithClassAndAmount(string setup, string charClass, int tech, int modSlots, double recoil)
     {
       string TotalNames = "";
-      _AugAmounts = augSlots;
+      _ModAmounts = modSlots;
       _MaxTech = tech;
       _WepRecoil = recoil;
 
@@ -110,41 +109,38 @@ namespace BestInSlotCalculator
       //Sets which class to go by
       switch (charClass.ToLower())
       {
-        case "gun":
-          setClassGunner();
+        case "aoe":
+          SetClassAoE();
           break;
-        case "flc":
-          setClassFleetCommander();
+        case "commander":
+          SetClassCommander();
           break;
-        case "snp":
-          setClassSniper();
+        case "artillary":
+          SetClassArtillary();
           break;
-        case "zrk":
-          setClassBerserker();
+        case "tank":
+          SetClassTank();
           break;
-        case "shm":
-          setClassShieldMonkey();
+        case "healer":
+          SetClassHealer();
           break;
-        case "eng":
-          setClassEngineer();
+        case "rouge":
+          SetClassRouge();
           break;
-        case "spd":
-          setClassSpeedDemon();
+        case "assassin":
+          SetClassAssassin();
           break;
-        case "ser":
-          setClassSeer();
-          break;
-        case "nul":
+        case "null":
           setClassNull();
           break;
       }
 
       BestSetup = new KeyValuePair<double, string>(0, "");
-      int[] AugIndexes, temp = new int[augSlots];
+      int[] ModIndexes, temp = new int[modSlots];
       cache.Clear();
       _FinalModSet.Clear();
 
-      setupTempAugSet();
+      setupTempModSet();
 
       for (int i = 0; i < temp.Length; i++)
       {
@@ -153,27 +149,27 @@ namespace BestInSlotCalculator
 
       ProcessingSetup(temp, 0);
 
-      AugIndexes = GetBestValueSet();
+      ModIndexes = GetBestValueSet();
 
-      TotalNames = FullNameOfAugSet(AugIndexes);
+      TotalNames = FullNameOfModSet(ModIndexes);
 
       return TotalNames;
     }
 
     //Recursive function to process the best aug setup
-    private void ProcessingSetup(int[] temp, int augPlace)
+    private void ProcessingSetup(int[] temp, int modPlace)
     {
 
-      if (augPlace == _AugAmounts)
+      if (modPlace == _ModAmounts)
         return;
 
       for (int i = 0; i < _FinalModSet.Count; i++)
       {
-        temp[augPlace] = i;
+        temp[modPlace] = i;
         if (cache.Contains(getKeyFromArray(temp)))
           continue;
         cache.Add(getKeyFromArray(temp));
-        if (augPlace + 1 == _AugAmounts)
+        if (modPlace + 1 == _ModAmounts)
         {
           switch (_ToS)
           {
@@ -193,7 +189,7 @@ namespace BestInSlotCalculator
           continue;
         }
         else
-          ProcessingSetup(temp, augPlace + 1);
+          ProcessingSetup(temp, modPlace + 1);
       }
     }
 
@@ -205,15 +201,15 @@ namespace BestInSlotCalculator
       switch (_ToS)
       {
         case TypeOfSearch.DAMAGE:
-          if (_ModSet[i].CritStr == 0 && _ModSet[i].Damage == 0 && _ModSet[i].Multifiring == 0)
+          if (_ModSet[i].CritStr == 0 && _ModSet[i].Damage == 0 && _ModSet[i].multishot == 0)
             return true;
           break;
         case TypeOfSearch.DPS:
-          if (_ModSet[i].CritStr == 0 && _ModSet[i].Damage == 0 && _ModSet[i].Multifiring == 0 && _ModSet[i].RoF == 0 && _ModSet[i].CritPerc == 0)
+          if (_ModSet[i].CritStr == 0 && _ModSet[i].Damage == 0 && _ModSet[i].multishot == 0 && _ModSet[i].RoF == 0 && _ModSet[i].CritPerc == 0)
             return true;
           break;
         case TypeOfSearch.HPS:
-          if (_ModSet[i].CritStr == 0 && _ModSet[i].Damage == 0 && _ModSet[i].TransPower == 0 && _ModSet[i].RoF == 0 && _ModSet[i].CritPerc == 0)
+          if (_ModSet[i].CritStr == 0 && _ModSet[i].Damage == 0 && _ModSet[i].HealingPower == 0 && _ModSet[i].RoF == 0 && _ModSet[i].CritPerc == 0)
             return true;
           break;
       }
@@ -228,15 +224,15 @@ namespace BestInSlotCalculator
     }
 
     //Returns a double thats the Max Damage from the array of index's of augmenters
-    private double MaxDamage(int[] AugIndexes)
+    private double MaxDamage(int[] ModIndexes)
     {
       double damage = 0;
       double critStr = 0;
       double critPerc = 0;
-      double multifiring = 0;
+      double multishot = 0;
 
       //Total Damage Stats
-      foreach (int i in AugIndexes)
+      foreach (int i in ModIndexes)
       {
         damage += _FinalModSet[i].Damage;
       }
@@ -244,7 +240,7 @@ namespace BestInSlotCalculator
       damage *= _classStats.Damage;
 
       //Total CritStr Stats
-      foreach (int i in AugIndexes)
+      foreach (int i in ModIndexes)
       {
         critStr += _FinalModSet[i].CritStr;
       }
@@ -252,40 +248,40 @@ namespace BestInSlotCalculator
       critStr *= _classStats.CritStr;
 
       //Total CritPerc Stats
-      foreach (int i in AugIndexes)
+      foreach (int i in ModIndexes)
       {
         critPerc += _FinalModSet[i].CritPerc;
       }
       critPerc += _classStats.CritPerc;
-      if (critPerc > 1)
+      if (critPerc > 0)
         critPerc = 1;
-      if (critPerc < .5)
-        return 0;
+      if (critPerc <= 0)
+        critPerc = 0;
 
       //Total MF stats and round Down
-      foreach (int i in AugIndexes)
+      foreach (int i in ModIndexes)
       {
-        multifiring += _FinalModSet[i].Multifiring;
+        multishot += _FinalModSet[i].multishot;
       }
-      multifiring++;
-      multifiring *= _classStats.Multifiring;
-      if (multifiring > 5) multifiring = 5;
-      else multifiring = Math.Floor(multifiring);
+      multishot++;
+      multishot *= _classStats.multishot;
+      if (multishot > 5) multishot = 5;
+      else multishot = Math.Floor(multishot);
 
-      return damage * (1 + _BaseCritExtraDamage * critStr) * multifiring;
+      return damage * (1 + _BaseCritExtraDamage * critStr * critPerc) * multishot;
     }
 
     //Returns a double thats the Max Dps from the array of index's of augmenters
-    private double MaxDps(int[] AugIndexes)
+    private double MaxDps(int[] ModIndexes)
     {
       double damage = 0;
       double critStr = 0;
-      double multifiring = 0;
+      double multishot = 0;
       double RateOfFire = 0;
       double critPerc = 0;
 
       //Total Damage Stats
-      foreach (int i in AugIndexes)
+      foreach (int i in ModIndexes)
       {
         damage += _FinalModSet[i].Damage;
       }
@@ -293,7 +289,7 @@ namespace BestInSlotCalculator
       damage *= _classStats.Damage;
 
       //Total RateOfFire Stats
-      foreach (int i in AugIndexes)
+      foreach (int i in ModIndexes)
       {
         RateOfFire += _FinalModSet[i].RoF;
       }
@@ -306,7 +302,7 @@ namespace BestInSlotCalculator
       }
 
       //Total CritStr Stats
-      foreach (int i in AugIndexes)
+      foreach (int i in ModIndexes)
       {
         critStr += _FinalModSet[i].CritStr;
       }
@@ -314,7 +310,7 @@ namespace BestInSlotCalculator
       critStr *= _classStats.CritStr;
 
       //Total CritPerc Stats
-      foreach (int i in AugIndexes)
+      foreach (int i in ModIndexes)
       {
         critPerc += _FinalModSet[i].CritPerc;
       }
@@ -326,31 +322,33 @@ namespace BestInSlotCalculator
       critPerc += _classStats.CritPerc + _BaseCritPercentage;
       if (critPerc > 1)
         critPerc = 1;
-        
-      //Total MF stats and round Down
-      foreach (int i in AugIndexes)
-      {
-        multifiring += _FinalModSet[i].Multifiring;
-      }
-      multifiring++;
-      multifiring *= _classStats.Multifiring;
-      if (multifiring > 5) multifiring = 5;
-      else multifiring = Math.Floor(multifiring);
+      if (critPerc < 0)
+        critPerc = 0;
 
-      return damage * RateOfFire * (1 + _BaseCritExtraDamage * critStr * critPerc) * multifiring;
+      //Total MF stats and round Down
+      foreach (int i in ModIndexes)
+      {
+        multishot += _FinalModSet[i].multishot;
+      }
+      multishot++;
+      multishot *= _classStats.multishot;
+      if (multishot > 5) multishot = 5;
+      else multishot = Math.Floor(multishot);
+
+      return damage * RateOfFire * (1 + _BaseCritExtraDamage * critStr * critPerc) * multishot;
     }
 
     //Returns a double thats the Max Hps from the array of index's of augmenters
-    private double MaxHps(int[] AugIndexes)
+    private double MaxHps(int[] ModIndexes)
     {
       double damage = 0;
       double critStr = 0;
       double RateOfFire = 0;
       double critPerc = 0;
-      double transPow = 0;
+      double healingPow = 0;
 
       //Total RateOfFire Stats
-      foreach (int i in AugIndexes)
+      foreach (int i in ModIndexes)
       {
         RateOfFire += _FinalModSet[i].RoF;
       }
@@ -363,7 +361,7 @@ namespace BestInSlotCalculator
       }
 
       //Total Damage Stats
-      foreach (int i in AugIndexes)
+      foreach (int i in ModIndexes)
       {
         damage += _FinalModSet[i].Damage;
       }
@@ -371,7 +369,7 @@ namespace BestInSlotCalculator
       damage *= _classStats.Damage;
 
       //Total CritStr Stats
-      foreach (int i in AugIndexes)
+      foreach (int i in ModIndexes)
       {
         critStr += _FinalModSet[i].CritStr;
       }
@@ -379,23 +377,25 @@ namespace BestInSlotCalculator
       critStr *= _classStats.CritStr;
 
       //Total CritPerc Stats
-      foreach (int i in AugIndexes)
+      foreach (int i in ModIndexes)
       {
         critPerc += _FinalModSet[i].CritPerc;
       }
       critPerc += _classStats.CritPerc + _BaseCritPercentage;
       if (critPerc > 1)
         critPerc = 1;
+      if (critPerc < 0)
+        critPerc = 0;
 
       //Total Trans Power Stats
-      foreach (int i in AugIndexes)
+      foreach (int i in ModIndexes)
       {
-        transPow += _FinalModSet[i].TransPower;
+        healingPow += _FinalModSet[i].HealingPower;
       }
-      transPow++;
-      transPow *= _classStats.TransPower;
+      healingPow++;
+      healingPow *= _classStats.HealingPower;
 
-      return damage * RateOfFire * (1 + _BaseCritExtraDamage * critStr * critPerc) * transPow;
+      return damage * RateOfFire * (1 + _BaseCritExtraDamage * critStr * critPerc) * healingPow;
     }
 
     //Returns a value for adding negative percentages
@@ -419,166 +419,105 @@ namespace BestInSlotCalculator
     }
 
     //Returns a key in the form of a string from an array of the index's of a group of augmenters
-    public string getKeyFromArray(int[] augSetIndex)
+    public string getKeyFromArray(int[] SetIndex)
     {
-      string AugIndexString = "";
-      int[] tempArray = new int[augSetIndex.Length];
-      Array.Copy(augSetIndex, tempArray, augSetIndex.Length);
+      string IndexString = "";
+      int[] tempArray = new int[SetIndex.Length];
+      Array.Copy(SetIndex, tempArray, SetIndex.Length);
       Array.Sort(tempArray);
       foreach (int i in tempArray)
       {
-        AugIndexString += i + "-";
+        IndexString += i + "-";
       }
 
-      return AugIndexString;
+      return IndexString;
     }
 
 
     //setClass(); These functions set the class for the calculator.
 
-    public void setClassSeer()
+    public void SetClassAssassin()
     {
       //Seer - Done
-      _classStats.ClassName = "Seer";
-      _classStats.CritPerc = 0.21;
-      _classStats.CritStr = 1.99;
-      _classStats.Damage = 2.414;
-      _classStats.Multifiring = 1;
+      _classStats.ClassName = "Assassin";
+      _classStats.CritPerc = 0.2;
+      _classStats.CritStr = 2.5;
+      _classStats.Damage = 2.5;
+      _classStats.multishot = 1;
       _classStats.RoF = 1;
-      _classStats.TransEff = 1;
-      _classStats.TransPower = 1;
-      _classStats.WeaponHold = 1;
-      _classStats.Shield = 1;
-      _classStats.Resist = 1;
-      _classStats.ElecRegen = 1;
-      _classStats.ShieldRegen = 1;
+      _classStats.HealingPower = 1;
     }
 
-    public void setClassSpeedDemon()
+    public void SetClassRouge()
     {
       //Speed Demon - Done
-      _classStats.ClassName = "Speed Demon";
-      _classStats.CritPerc = 0.21;
+      _classStats.ClassName = "Rouge";
+      _classStats.CritPerc = 0;
       _classStats.CritStr = 1;
-      _classStats.Damage = 4.0964;
-      _classStats.Multifiring = 1;
-      _classStats.RoF = 1.8816;
-      _classStats.TransEff = 1;
-      _classStats.TransPower = 1;
-      _classStats.WeaponHold = 1;
-      _classStats.Shield = 1;
-      _classStats.Resist = 1;
-      _classStats.ElecRegen = 1;
-      _classStats.ShieldRegen = 1;
+      _classStats.Damage = 4;
+      _classStats.multishot = 1;
+      _classStats.RoF = 2;
+      _classStats.HealingPower = 1;
     }
 
-    public void setClassShieldMonkey()
+    public void SetClassHealer()
     {
       //Shield Monkey - Done
-      _classStats.ClassName = "Shield Monkey";
+      _classStats.ClassName = "Healer";
       _classStats.CritPerc = 0;
       _classStats.CritStr = 1;
-      _classStats.Damage = 1 * (1 + 0.24) * (1 + 0.35);
-      _classStats.Multifiring = 1;
-      _classStats.RoF = 1;
-      _classStats.TransEff = 1 * (1 + 0.2);
-      _classStats.TransPower = 1 * (1 + 0.2) * (1 + 0.01);
-      _classStats.WeaponHold = 1;
-      _classStats.Shield = 1;
-      _classStats.Resist = 1;
-      _classStats.ElecRegen = 1;
-      _classStats.ShieldRegen = 1 * (1 + 0.2) * (1 + 0.01);
+      _classStats.Damage = 2;
+      _classStats.multishot = 1;
+      _classStats.RoF = 1.5;
+      _classStats.HealingPower = 2;
     }
 
-    public void setClassEngineer()
-    {
-      //Engineer - Done
-      _classStats.ClassName = "Engineer";
-      _classStats.CritPerc = 0;
-      _classStats.CritStr = 1;
-      _classStats.Damage = 1;
-      _classStats.Multifiring = 1;
-      _classStats.RoF = 1;
-      _classStats.TransEff = 1;
-      _classStats.TransPower = 1;
-      _classStats.WeaponHold = 1;
-      _classStats.Shield = 1;
-      _classStats.Resist = 1;
-      _classStats.ElecRegen = 1;
-      _classStats.ShieldRegen = 1;
-    }
-
-    public void setClassFleetCommander()
+    public void SetClassCommander()
     {
       //Fleet Commander
-      _classStats.ClassName = "Fleet Commander";
+      _classStats.ClassName = "Commander";
       _classStats.CritPerc = 0;
       _classStats.CritStr = 1;
       _classStats.Damage = 1;
-      _classStats.Multifiring = 1;
+      _classStats.multishot = 1;
       _classStats.RoF = 1;
-      _classStats.TransEff = 1;
-      _classStats.TransPower = 1;
-      _classStats.WeaponHold = 1;
-      _classStats.Shield = 1;
-      _classStats.Resist = 1;
-      _classStats.ElecRegen = 1;
-      _classStats.ShieldRegen = 1;
+      _classStats.HealingPower = 1;
     }
 
-    public void setClassGunner()
+    public void SetClassAoE()
     {
       //Gunner
       _classStats.ClassName = "Gunner";
       _classStats.CritPerc = 0;
       _classStats.CritStr = 1;
       _classStats.Damage = 1;
-      _classStats.Multifiring = 1;
+      _classStats.multishot = 2;
       _classStats.RoF = 1;
-      _classStats.TransEff = 1;
-      _classStats.TransPower = 1;
-      _classStats.WeaponHold = 1.4 * 1.5;
-      _classStats.Shield = 1;
-      _classStats.Resist = 1;
-      _classStats.ElecRegen = 1;
-      _classStats.ShieldRegen = 1;
+      _classStats.HealingPower = 1;
     }
 
-    public void setClassBerserker()
+    public void SetClassTank()
     {
       //Berserker
-      _classStats.ClassName = "Berserker";
+      _classStats.ClassName = "Tank";
       _classStats.CritPerc = 0;
       _classStats.CritStr = 1;
-      _classStats.Damage = 1 * 1.03 * 1.03 * 1.03 * 1.3 * (1 + 0.36 * 3) * (1 + 0.002 * 50) * (1 + 0.01 * 50);
-      _classStats.Multifiring = 3;
+      _classStats.Damage = 2;
+      _classStats.multishot = 3;
       _classStats.RoF = 1;
-      _classStats.TransEff = 1;
-      _classStats.TransPower = 1;
-      _classStats.WeaponHold = 1.6;
-      _classStats.Shield = 1 * 1.04 * 1.04 * 1.04 * (1 + 0.01 * 50);
-      _classStats.Resist = 1 * (1 + 0.1 * 3);
-      _classStats.ElecRegen = 1;
-      _classStats.ShieldRegen = 1;
-      _classStats.ElectricalTempering = -0.33;
+      _classStats.HealingPower = 1;
     }
 
-    public void setClassSniper()
+    public void SetClassArtillary()
     {
       //Sniper
-      _classStats.ClassName = "Sniper";
-      _classStats.CritPerc = 0.21;
-      _classStats.CritStr = 1;
-      _classStats.Damage = 9.26184336;
-      _classStats.Multifiring = 1;
+      _classStats.ClassName = "Artillary";
+      _classStats.CritPerc = 0.1;
+      _classStats.CritStr = 1.5;
+      _classStats.Damage = 6;
+      _classStats.multishot = 1;
       _classStats.RoF = 0.7;
-      _classStats.TransEff = 1;
-      _classStats.TransPower = 1;
-      _classStats.WeaponHold = 1;
-      _classStats.Shield = 1;
-      _classStats.Resist = 1;
-      _classStats.ElecRegen = 1;
-      _classStats.ShieldRegen = 1;
+      _classStats.HealingPower = 1;
     }
 
     public void setClassNull()
@@ -587,16 +526,10 @@ namespace BestInSlotCalculator
       _classStats.ClassName = "Null";
       _classStats.CritPerc = 0;
       _classStats.CritStr = 1;
-      _classStats.Damage = 1.4;
-      _classStats.Multifiring = 1;
-      _classStats.RoF = 1.4;
-      _classStats.TransEff = 1;
-      _classStats.TransPower = 1;
-      _classStats.WeaponHold = 1;
-      _classStats.Shield = 1;
-      _classStats.Resist = 1;
-      _classStats.ElecRegen = 1;
-      _classStats.ShieldRegen = 1;
+      _classStats.Damage = 1;
+      _classStats.multishot = 1;
+      _classStats.RoF = 1;
+      _classStats.HealingPower = 1;
     }
   }
 }

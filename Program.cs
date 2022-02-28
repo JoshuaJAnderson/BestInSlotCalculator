@@ -14,6 +14,7 @@ namespace BestInSlotCalculator
       string Console_Input = "";
       calculator.SetupModSet(sql_Reader.GetModifierList());
 
+      Console.WriteLine(Help_Case());
       while (Console_Input != "exit")
       {
         Console_Input = Console.ReadLine();
@@ -25,17 +26,22 @@ namespace BestInSlotCalculator
     static void Parse_Input(string input)
     {
       string output = "";
-      switch (input.ToLower())
+      string[] inputs = input.Split(' ');
+      if(inputs[0] == "help")
       {
-        case "dps":
-          output = calculator.ProcessSetupWithClassAndAmount("dps", "nul", 1, 3, 1);
-          break;
-
-        default:
-          break;
+        output = Help_Case();
+      }
+      else
+      {
+        output = calculator.ProcessSetupWithClassAndAmount(inputs[0], inputs[1], int.Parse(inputs[2]), int.Parse(inputs[3]), int.Parse(inputs[4]));
       }
 
       Console.WriteLine(output);
+    }
+
+    static string Help_Case()
+    {
+      return "Syntax: [calculation_type] [class_type] [highest_tier] [mod_slots] [recoil]";
     }
   }
 }

@@ -17,8 +17,8 @@
       RoF,
       CritPerc,
       CritStr,
-      Multifiring,
-      TransPower,
+      multishot,
+      HealingPower,
       TransEff,
       ElecRegen,
       ShieldRegen,
@@ -49,15 +49,7 @@
       RoF,
       CritPerc,
       CritStr,
-      Multifiring,
-      TransPower,
-      TransEff,
-      ElecRegen,
-      ShieldRegen,
-      Energy,
-      Shield,
-      Resist,
-      ElectricalTempering,
-      WeaponHold;
+      multishot,
+      HealingPower;
   };
 }

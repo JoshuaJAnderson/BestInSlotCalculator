@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using System.Data.SqlTypes;
 using System.Data.SqlClient;
 using Objects;
 
@@ -29,7 +27,7 @@ namespace BestInSlotCalculator
         reader = myCommand.ExecuteReader();
         while (reader.Read())
         {
-          Modifier tempMod = create_modifier(reader);
+          Modifier tempMod = Create_modifier(reader);
           _ModSet.Add(tempMod);
           //Console.WriteLine(tempMod.Display());
 
@@ -47,7 +45,7 @@ namespace BestInSlotCalculator
       return _ModSet;
     }
 
-    Modifier create_modifier(SqlDataReader reader)
+    Modifier Create_modifier(SqlDataReader reader)
     {
       Modifier mod = new Modifier();
 
@@ -56,7 +54,7 @@ namespace BestInSlotCalculator
       mod.RoF = (double)reader.GetValue(2);
       mod.CritStr = (double)reader.GetValue(3);
       mod.CritPerc = (double)reader.GetValue(4);
-      mod.Multifiring = (double)reader.GetValue(5);
+      mod.multishot = (double)reader.GetValue(5);
 
       return mod;
     }

@@ -3,3 +3,5 @@ This repo is made as an example of a different program I made. It loops through 
 
 The math behind each:
 -Dps is Damage * RateOfFire * (1 + BaseCrit * CritStrength * CritPercentage) * MultiShot
+-Dph is Damage * (1 + BaseCit * CritStrength) * MultiShot
+-Hps
