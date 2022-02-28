@@ -4,14 +4,12 @@
   {
     DAMAGE,
     DPS,
-    HPS,
-    TANK,
-    BURST,
+    HPS
   }
 
-  public struct Augmenter
+  public struct Modifier
   {
-    public string augName;
+    public string Name;
     public string type;
     public int skill;
     public int tech;
@@ -29,6 +27,19 @@
       Resist,
       ElectricalTempering,
       WeaponHold;
+
+    public string Display()
+    {
+      string displaystr = "";
+
+      displaystr += "Name: " + Name;
+      displaystr += "\tDamage: " + (Damage * 100).ToString() + '%';
+      displaystr += "\tRate Of Fire: " + (RoF * 100).ToString() + '%';
+      displaystr += "\tCrit Strength: " + (CritStr * 100).ToString() + '%';
+      displaystr += "\tCrit Perc: " + (CritPerc * 100).ToString() + '%';
+
+      return displaystr;
+    }
   };
 
   public struct classStats
@@ -49,13 +60,4 @@
       ElectricalTempering,
       WeaponHold;
   };
-
-  public struct AugType
-  {
-    public bool BASE,
-      LF,
-      HF,
-      FREIGHTER,
-      CAPITAL;
-  }
 }

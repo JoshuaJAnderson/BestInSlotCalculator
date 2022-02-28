@@ -7,46 +7,41 @@ namespace BestInSlotCalculator
 {
   class Calculator
   {
-    List<Augmenter> _augSet;
-    List<Augmenter> _FinalAugSet = new List<Augmenter>();
+    List<Modifier> _ModSet;
+    List<Modifier> _FinalModSet = new List<Modifier>();
     HashSet<string> cache = new HashSet<string>();
 
-    int _MaxTech = 22, _AugAmounts, _ElecRegen, _WeaponElecUsage;
-    double _WepRecoil;
-    float _critExtraDamage = 0.5f;
+    int _MaxTech = 22, _AugAmounts;
+    double _WepRecoil, _BaseCritExtraDamage = 0.5, _BaseCritPercentage = 0.1;
 
     classStats _classStats;
-    AugType _TypesOfAugsAllowed;
 
     KeyValuePair<double, string> BestSetup = new KeyValuePair<double, string>(0, "");
 
     TypeOfSearch _ToS;
 
-
     public Calculator()
     {
       setClassNull();
-      _TypesOfAugsAllowed.BASE = false;
-      _TypesOfAugsAllowed.LF = false;
-      _TypesOfAugsAllowed.HF = false;
-      _TypesOfAugsAllowed.FREIGHTER = false;
-      _TypesOfAugsAllowed.CAPITAL = false;
     }
 
+    public void SetupModSet(List<Modifier> ModSet)
+    {
+      _ModSet = ModSet;
+    }
 
-    //Creates a filtered set of augmenters using the _FinalAugSet list
+    //Creates a filtered set of augmenters using the _FinalModSet list
     private void setupTempAugSet()
     {
       Console.WriteLine("----------------------------------");
-      for (int i = 0; i < _augSet.Count; i++)
+      for (int i = 0; i < _ModSet.Count; i++)
       {
         if (!TypeNotAllowed(i))
         {
-          _FinalAugSet.Add(_augSet[i]);
-          Console.WriteLine(_augSet[i].augName);
+          _FinalModSet.Add(_ModSet[i]);
         }
       }
-      Console.WriteLine("Amount of augmenters: " + _FinalAugSet.Count);
+      Console.WriteLine("Amount of augmenters: " + _FinalModSet.Count);
     }
 
     //Returns a string of the augmenter's names using an array of their index's
@@ -56,7 +51,7 @@ namespace BestInSlotCalculator
 
       foreach (int i in augIndexes)
       {
-        Names += _FinalAugSet[i].augName + "|";
+        Names += _FinalModSet[i].Name + "|";
       }
       Names += "\n";
       return Names;
@@ -90,9 +85,9 @@ namespace BestInSlotCalculator
 
     //public string ProcessSetupWithClassAndAmount(string, string, string, int, int, double)
     //Process the information and gives back in string form the best possible aug setup
-    public string ProcessSetupWithClassAndAmount(string setup, string charClass, string hullType, int tech, int augSlots, double recoil)
+    public string ProcessSetupWithClassAndAmount(string setup, string charClass, int tech, int augSlots, double recoil)
     {
-      string TotalAugNames = "";
+      string TotalNames = "";
       _AugAmounts = augSlots;
       _MaxTech = tech;
       _WepRecoil = recoil;
@@ -109,35 +104,8 @@ namespace BestInSlotCalculator
         case "dph":
           _ToS = TypeOfSearch.DAMAGE;
           break;
-        case "tank":
-          _ToS = TypeOfSearch.TANK;
-          break;
-        case "burst":
-          _ToS = TypeOfSearch.BURST;
-          break;
         default:
           return "Error with setup type.";
-      }
-      //Sets which hull to go by
-      switch (hullType.ToLower())
-      {
-        case "base":
-          _TypesOfAugsAllowed.BASE = true;
-          break;
-        case "lf":
-          _TypesOfAugsAllowed.LF = true;
-          break;
-        case "hf":
-          _TypesOfAugsAllowed.HF = true;
-          break;
-        case "sf":
-          _TypesOfAugsAllowed.FREIGHTER = true;
-          break;
-        case "cap":
-          _TypesOfAugsAllowed.CAPITAL = true;
-          break;
-        default:
-          return "Error with hull type.";
       }
       //Sets which class to go by
       switch (charClass.ToLower())
@@ -174,7 +142,7 @@ namespace BestInSlotCalculator
       BestSetup = new KeyValuePair<double, string>(0, "");
       int[] AugIndexes, temp = new int[augSlots];
       cache.Clear();
-      _FinalAugSet.Clear();
+      _FinalModSet.Clear();
 
       setupTempAugSet();
 
@@ -187,9 +155,9 @@ namespace BestInSlotCalculator
 
       AugIndexes = GetBestValueSet();
 
-      TotalAugNames = FullNameOfAugSet(AugIndexes);
+      TotalNames = FullNameOfAugSet(AugIndexes);
 
-      return TotalAugNames;
+      return TotalNames;
     }
 
     //Recursive function to process the best aug setup
@@ -199,7 +167,7 @@ namespace BestInSlotCalculator
       if (augPlace == _AugAmounts)
         return;
 
-      for (int i = 0; i < _FinalAugSet.Count; i++)
+      for (int i = 0; i < _FinalModSet.Count; i++)
       {
         temp[augPlace] = i;
         if (cache.Contains(getKeyFromArray(temp)))
@@ -232,70 +200,28 @@ namespace BestInSlotCalculator
     //Returns if the augmenter is allowed or not from an index value
     private bool TypeNotAllowed(int i)
     {
-      string type = _augSet[i].type;
-
-      if (_TypesOfAugsAllowed.BASE)
-      {
-        if (type == "Base")
-        {
-          //if (_augSet[i].Value.tech < 11 || _augSet[i].Value.tech > 16)
-          if (_augSet[i].tech < 17)
-            return true;
-          return false;
-        }
-        else
-        {
-          return true;
-        }
-      }
-      else
-      {
-        if (type == "Base")
-        {
-          return true;
-        }
-      }
-
-      switch (type)
-      {
-        case "LightFighter":
-          if (!_TypesOfAugsAllowed.LF)
-            return true;
-          break;
-        case "HeavyFighter":
-          if (!_TypesOfAugsAllowed.HF)
-            return true;
-          break;
-        case "Freighter":
-          if (!_TypesOfAugsAllowed.FREIGHTER)
-            return true;
-          break;
-        case "Capital":
-          if (!_TypesOfAugsAllowed.CAPITAL)
-            return true;
-          break;
-      }
+      string type = _ModSet[i].type;
 
       switch (_ToS)
       {
         case TypeOfSearch.DAMAGE:
-          if (_augSet[i].CritStr == 0 && _augSet[i].Damage == 0 && _augSet[i].Multifiring == 0)
+          if (_ModSet[i].CritStr == 0 && _ModSet[i].Damage == 0 && _ModSet[i].Multifiring == 0)
             return true;
           break;
         case TypeOfSearch.DPS:
-          if (_augSet[i].CritStr == 0 && _augSet[i].Damage == 0 && _augSet[i].Multifiring == 0 && _augSet[i].RoF == 0 && _augSet[i].CritPerc == 0)
+          if (_ModSet[i].CritStr == 0 && _ModSet[i].Damage == 0 && _ModSet[i].Multifiring == 0 && _ModSet[i].RoF == 0 && _ModSet[i].CritPerc == 0)
             return true;
           break;
         case TypeOfSearch.HPS:
-          if (_augSet[i].CritStr == 0 && _augSet[i].Damage == 0 && _augSet[i].TransPower == 0 && _augSet[i].RoF == 0 && _augSet[i].CritPerc == 0)
+          if (_ModSet[i].CritStr == 0 && _ModSet[i].Damage == 0 && _ModSet[i].TransPower == 0 && _ModSet[i].RoF == 0 && _ModSet[i].CritPerc == 0)
             return true;
           break;
       }
 
-      //if (_augSet[i].Value.skill != -1)
+      //if (_ModSet[i].Value.skill != -1)
       //  return true;
 
-      if (_augSet[i].tech < (_MaxTech - 3) || _augSet[i].tech > _MaxTech)
+      if (_ModSet[i].tech < (_MaxTech - 3) || _ModSet[i].tech > _MaxTech)
         return true;
 
       return false;
@@ -312,7 +238,7 @@ namespace BestInSlotCalculator
       //Total Damage Stats
       foreach (int i in AugIndexes)
       {
-        damage += _FinalAugSet[i].Damage;
+        damage += _FinalModSet[i].Damage;
       }
       damage++;
       damage *= _classStats.Damage;
@@ -320,7 +246,7 @@ namespace BestInSlotCalculator
       //Total CritStr Stats
       foreach (int i in AugIndexes)
       {
-        critStr += _FinalAugSet[i].CritStr;
+        critStr += _FinalModSet[i].CritStr;
       }
       critStr++;
       critStr *= _classStats.CritStr;
@@ -328,7 +254,7 @@ namespace BestInSlotCalculator
       //Total CritPerc Stats
       foreach (int i in AugIndexes)
       {
-        critPerc += _FinalAugSet[i].CritPerc;
+        critPerc += _FinalModSet[i].CritPerc;
       }
       critPerc += _classStats.CritPerc;
       if (critPerc > 1)
@@ -339,14 +265,14 @@ namespace BestInSlotCalculator
       //Total MF stats and round Down
       foreach (int i in AugIndexes)
       {
-        multifiring += _FinalAugSet[i].Multifiring;
+        multifiring += _FinalModSet[i].Multifiring;
       }
       multifiring++;
       multifiring *= _classStats.Multifiring;
       if (multifiring > 5) multifiring = 5;
       else multifiring = Math.Floor(multifiring);
 
-      return damage * (1 + _critExtraDamage * critStr) * multifiring;
+      return damage * (1 + _BaseCritExtraDamage * critStr) * multifiring;
     }
 
     //Returns a double thats the Max Dps from the array of index's of augmenters
@@ -357,32 +283,11 @@ namespace BestInSlotCalculator
       double multifiring = 0;
       double RateOfFire = 0;
       double critPerc = 0;
-      double energyRegen = 0;
-      double electemp = 0;
-      double tempDPE = 0;
-      double tempRegen = 0;
-      double DPEGoal = 50;
-
-      //Total Electrical Regeneration Stats
-      foreach (int i in AugIndexes)
-      {
-        energyRegen += _FinalAugSet[i].ElecRegen;
-      }
-      energyRegen++;
-      energyRegen *= _classStats.ElecRegen;
-
-      //Total Electrical Tempering Stats
-      foreach (int i in AugIndexes)
-      {
-        electemp += negativeAdd(_FinalAugSet[i].ElectricalTempering);
-      }
-      electemp = negativeFinalize(electemp);
-      electemp = (1 + electemp) * (1 + _classStats.ElectricalTempering) - 1;
 
       //Total Damage Stats
       foreach (int i in AugIndexes)
       {
-        damage += _FinalAugSet[i].Damage;
+        damage += _FinalModSet[i].Damage;
       }
       damage++;
       damage *= _classStats.Damage;
@@ -390,20 +295,20 @@ namespace BestInSlotCalculator
       //Total RateOfFire Stats
       foreach (int i in AugIndexes)
       {
-        RateOfFire += _FinalAugSet[i].RoF;
+        RateOfFire += _FinalModSet[i].RoF;
       }
       RateOfFire++;
       RateOfFire *= _classStats.RoF;
 
-      if (_WepRecoil / (_TypesOfAugsAllowed.BASE ? .5 : .1) < RateOfFire)
+      if (_WepRecoil / .1 < RateOfFire)
       {
-        RateOfFire = _WepRecoil / (_TypesOfAugsAllowed.BASE ? .5 : .1);
+        RateOfFire = _WepRecoil / .1;
       }
 
       //Total CritStr Stats
       foreach (int i in AugIndexes)
       {
-        critStr += _FinalAugSet[i].CritStr;
+        critStr += _FinalModSet[i].CritStr;
       }
       critStr++;
       critStr *= _classStats.CritStr;
@@ -411,33 +316,28 @@ namespace BestInSlotCalculator
       //Total CritPerc Stats
       foreach (int i in AugIndexes)
       {
-        critPerc += _FinalAugSet[i].CritPerc;
+        critPerc += _FinalModSet[i].CritPerc;
       }
 
       critPerc += _classStats.CritPerc;
       if (critPerc > .60)
         critPerc = .60;
-      /*
-      critPerc += _classStats.CritPerc + _BaseCritPerc;
+      
+      critPerc += _classStats.CritPerc + _BaseCritPercentage;
       if (critPerc > 1)
         critPerc = 1;
-        */
+        
       //Total MF stats and round Down
       foreach (int i in AugIndexes)
       {
-        multifiring += _FinalAugSet[i].Multifiring;
+        multifiring += _FinalModSet[i].Multifiring;
       }
       multifiring++;
       multifiring *= _classStats.Multifiring;
       if (multifiring > 5) multifiring = 5;
       else multifiring = Math.Floor(multifiring);
 
-      tempDPE = damage / (_WeaponElecUsage * (1 + electemp) * multifiring);
-      tempRegen = _ElecRegen * energyRegen - (_WeaponElecUsage * (1 + electemp) * multifiring);
-
-
-
-      return damage * RateOfFire * (1 + _critExtraDamage * critStr * critPerc) * multifiring * (tempRegen < 0 ? (1 / -tempRegen) : 1);
+      return damage * RateOfFire * (1 + _BaseCritExtraDamage * critStr * critPerc) * multifiring;
     }
 
     //Returns a double thats the Max Hps from the array of index's of augmenters
@@ -452,20 +352,20 @@ namespace BestInSlotCalculator
       //Total RateOfFire Stats
       foreach (int i in AugIndexes)
       {
-        RateOfFire += _FinalAugSet[i].RoF;
+        RateOfFire += _FinalModSet[i].RoF;
       }
       RateOfFire++;
       RateOfFire *= _classStats.RoF;
 
-      if (_WepRecoil / (_TypesOfAugsAllowed.BASE ? .5 : .1) < RateOfFire)
+      if (_WepRecoil / .1 < RateOfFire)
       {
-        RateOfFire = _WepRecoil / (_TypesOfAugsAllowed.BASE ? .5 : .1);
+        RateOfFire = _WepRecoil / .1;
       }
 
       //Total Damage Stats
       foreach (int i in AugIndexes)
       {
-        damage += _FinalAugSet[i].Damage;
+        damage += _FinalModSet[i].Damage;
       }
       damage++;
       damage *= _classStats.Damage;
@@ -473,7 +373,7 @@ namespace BestInSlotCalculator
       //Total CritStr Stats
       foreach (int i in AugIndexes)
       {
-        critStr += _FinalAugSet[i].CritStr;
+        critStr += _FinalModSet[i].CritStr;
       }
       critStr++;
       critStr *= _classStats.CritStr;
@@ -481,25 +381,25 @@ namespace BestInSlotCalculator
       //Total CritPerc Stats
       foreach (int i in AugIndexes)
       {
-        critPerc += _FinalAugSet[i].CritPerc;
+        critPerc += _FinalModSet[i].CritPerc;
       }
-      critPerc += _classStats.CritPerc;
+      critPerc += _classStats.CritPerc + _BaseCritPercentage;
       if (critPerc > 1)
         critPerc = 1;
 
       //Total Trans Power Stats
       foreach (int i in AugIndexes)
       {
-        transPow += _FinalAugSet[i].TransPower;
+        transPow += _FinalModSet[i].TransPower;
       }
       transPow++;
       transPow *= _classStats.TransPower;
 
-      return damage * RateOfFire * (1 + _critExtraDamage * critStr * critPerc) * transPow;
+      return damage * RateOfFire * (1 + _BaseCritExtraDamage * critStr * critPerc) * transPow;
     }
 
     //Returns a value for adding negative percentages
-    private double negativeAdd(double value)
+    private double NegativeAdd(double value)
     {
       if (value < 0)
       {
@@ -509,7 +409,7 @@ namespace BestInSlotCalculator
     }
 
     //Returns the value to be used after adding negative percentages
-    private double negativeFinalize(double value)
+    private double NegativeFinalize(double value)
     {
       if (value < 0)
       {
