@@ -5,7 +5,7 @@ multiplied into class modifiers to figure out total dps.
 
 ## How to use?
 - First you need to make sure you can connect to an SQL Database with the specified formatting. Fill out the stats of the modifiers. Once you run the 
-program it will tell you the format it desires which is: [Calculation_Type](string) [Class_Type](string) [Tier](int) [Slots](int) [Recoil](float)
+program it will tell you the format it desires which is: \[Calculation_Type\](string) \[Class_Type\](string) \[Tier\](int) \[Slots\](int) \[Recoil\](float)
 - [Calculation_Type] Includes: "Dps"(Damage Per Second), "Hps"(Heals Per Second), "Dph"(Damage Per Hit)
 - [Class_Type] Includes: "Tank", "Healer", "Assassin", "Rouge", "Artillary", "Commander", "AoE"
 - [Tier] Has to be an integer greater than or equal to 0
