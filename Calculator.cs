@@ -234,35 +234,37 @@ namespace BestInSlotCalculator
       //Total Damage Stats
       foreach (int i in ModIndexes)
       {
-        damage += _FinalModSet[i].Damage;
+        damage += NegativeAdd(_FinalModSet[i].Damage);
       }
+      damage = NegativeFinalize(damage);
       damage++;
       damage *= _classStats.Damage;
 
       //Total CritStr Stats
       foreach (int i in ModIndexes)
       {
-        critStr += _FinalModSet[i].CritStr;
+        critStr += NegativeAdd(_FinalModSet[i].CritStr);
       }
+      critStr = NegativeFinalize(critStr);
       critStr++;
       critStr *= _classStats.CritStr;
 
       //Total CritPerc Stats
       foreach (int i in ModIndexes)
       {
-        critPerc += _FinalModSet[i].CritPerc;
+        critPerc += NegativeAdd(_FinalModSet[i].CritPerc);
       }
+      critPerc = NegativeFinalize(critPerc);
       critPerc += _classStats.CritPerc;
-      if (critPerc > 0)
-        critPerc = 1;
-      if (critPerc <= 0)
-        critPerc = 0;
+      if (critPerc > 0) critPerc = 1;
+      if (critPerc <= 0) critPerc = 0;
 
       //Total MF stats and round Down
       foreach (int i in ModIndexes)
       {
-        multishot += _FinalModSet[i].multishot;
+        multishot += NegativeAdd(_FinalModSet[i].multishot);
       }
+      multishot = NegativeFinalize(multishot);
       multishot++;
       multishot *= _classStats.multishot;
       if (multishot > 5) multishot = 5;
@@ -283,16 +285,18 @@ namespace BestInSlotCalculator
       //Total Damage Stats
       foreach (int i in ModIndexes)
       {
-        damage += _FinalModSet[i].Damage;
+        damage += NegativeAdd(_FinalModSet[i].Damage);
       }
+      damage = NegativeFinalize(damage);
       damage++;
       damage *= _classStats.Damage;
 
       //Total RateOfFire Stats
       foreach (int i in ModIndexes)
       {
-        RateOfFire += _FinalModSet[i].RoF;
+        RateOfFire += NegativeAdd(_FinalModSet[i].RoF);
       }
+      RateOfFire = NegativeFinalize(RateOfFire);
       RateOfFire++;
       RateOfFire *= _classStats.RoF;
 
@@ -304,20 +308,18 @@ namespace BestInSlotCalculator
       //Total CritStr Stats
       foreach (int i in ModIndexes)
       {
-        critStr += _FinalModSet[i].CritStr;
+        critStr += NegativeAdd(_FinalModSet[i].CritStr);
       }
+      critStr = NegativeFinalize(critStr);
       critStr++;
       critStr *= _classStats.CritStr;
 
       //Total CritPerc Stats
       foreach (int i in ModIndexes)
       {
-        critPerc += _FinalModSet[i].CritPerc;
+        critPerc += NegativeAdd(_FinalModSet[i].CritPerc);
       }
-
-      critPerc += _classStats.CritPerc;
-      if (critPerc > .60)
-        critPerc = .60;
+      critPerc = NegativeFinalize(critPerc);
       
       critPerc += _classStats.CritPerc + _BaseCritPercentage;
       if (critPerc > 1)
@@ -328,8 +330,9 @@ namespace BestInSlotCalculator
       //Total MF stats and round Down
       foreach (int i in ModIndexes)
       {
-        multishot += _FinalModSet[i].multishot;
+        multishot += NegativeAdd(_FinalModSet[i].multishot);
       }
+      multishot = NegativeFinalize(multishot);
       multishot++;
       multishot *= _classStats.multishot;
       if (multishot > 5) multishot = 5;
@@ -350,8 +353,9 @@ namespace BestInSlotCalculator
       //Total RateOfFire Stats
       foreach (int i in ModIndexes)
       {
-        RateOfFire += _FinalModSet[i].RoF;
+        RateOfFire += NegativeAdd(_FinalModSet[i].RoF);
       }
+      RateOfFire = NegativeFinalize(RateOfFire);
       RateOfFire++;
       RateOfFire *= _classStats.RoF;
 
@@ -363,24 +367,27 @@ namespace BestInSlotCalculator
       //Total Damage Stats
       foreach (int i in ModIndexes)
       {
-        damage += _FinalModSet[i].Damage;
+        damage += NegativeAdd(_FinalModSet[i].Damage);
       }
+      damage = NegativeFinalize(damage);
       damage++;
       damage *= _classStats.Damage;
 
       //Total CritStr Stats
       foreach (int i in ModIndexes)
       {
-        critStr += _FinalModSet[i].CritStr;
+        critStr += NegativeAdd(_FinalModSet[i].CritStr);
       }
+      critStr = NegativeFinalize(critStr);
       critStr++;
       critStr *= _classStats.CritStr;
 
       //Total CritPerc Stats
       foreach (int i in ModIndexes)
       {
-        critPerc += _FinalModSet[i].CritPerc;
+        critPerc += NegativeAdd(_FinalModSet[i].CritPerc);
       }
+      critPerc = NegativeFinalize(critPerc);
       critPerc += _classStats.CritPerc + _BaseCritPercentage;
       if (critPerc > 1)
         critPerc = 1;
@@ -390,8 +397,9 @@ namespace BestInSlotCalculator
       //Total Trans Power Stats
       foreach (int i in ModIndexes)
       {
-        healingPow += _FinalModSet[i].HealingPower;
+        healingPow += NegativeAdd(_FinalModSet[i].HealingPower);
       }
+      healingPow = NegativeFinalize(healingPow);
       healingPow++;
       healingPow *= _classStats.HealingPower;
 
