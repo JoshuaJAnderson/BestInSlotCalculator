@@ -1,4 +1,6 @@
-﻿namespace Objects
+﻿// This is a namespace holding different objects to be used in the calculator
+
+namespace Objects
 {
   public enum TypeOfSearch
   {

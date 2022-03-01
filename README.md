@@ -1,7 +1,8 @@
 ﻿# What is the purpose of this repo?
 This repo is made as an example of a different program I made. It loops through every combination of modifiers and figures out which combination 
 would give the best dps (damage per second), dph (damage per hit), hps (heals per second). Things to note is modifiers are added together before being 
-multiplied into class modifiers to figure out total dps.
+multiplied into class modifiers to figure out total dps. If you calculate the amount of permutations 3 different modifier slots are with a thousand 
+different choices it is 1000^3 which is one billion different combinations to sort through. 
 
 ## How to use?
 - First you need to make sure you can connect to an SQL Database with the specified formatting. Fill out the stats of the modifiers. Once you run the 
